@@ -1,0 +1,40 @@
+﻿<Application x:Class="PostSermonUploader.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/ControlStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            
+            <Style x:Key="LabelTextBlock"
+                   TargetType="TextBlock">
+                <Setter Property="HorizontalAlignment"
+                        Value="Right" />
+                <Setter Property="Margin"
+                        Value="5,2" />
+            </Style>
+
+            <Style x:Key="ValueTextBlock"
+                   TargetType="TextBlock">
+                <Setter Property="HorizontalAlignment"
+                        Value="Left" />
+                <Setter Property="Margin"
+                        Value="5,2" />
+            </Style>
+
+            <Style x:Key="ValueTextBox"
+                    TargetType="TextBox"
+                    BasedOn="{StaticResource DefaultControl}">
+            </Style>
+
+            <Style x:Key="Button"
+                   TargetType="Button"
+                   BasedOn="{StaticResource DefaultControl}">
+                <Setter Property="Padding"
+                        Value="2" />
+            </Style>
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

@@ -1,0 +1,106 @@
+﻿<Window x:Class="PostSermonUploader.SermonDetailsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:postSermonUploader="clr-namespace:PostSermonUploader"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance postSermonUploader:SermonDetailsViewModel}"
+        Title="Sermon Uploader" Width="400">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0"
+                   Grid.Column="0"
+                   Text="Pastor:"
+                   Style="{StaticResource LabelTextBlock}" />
+        <TextBox Grid.Row="0"
+                 Grid.Column="1"
+                 Text="{Binding Pastor, ValidatesOnDataErrors=False, ValidatesOnExceptions=True}"
+                 Style="{StaticResource ValueTextBox}">
+        </TextBox>
+
+        <TextBlock Grid.Row="1"
+                   Grid.Column="0"
+                   Text="Title:"
+                   Style="{StaticResource LabelTextBlock}" />
+        <TextBox Grid.Row="1"
+                 Grid.Column="1"
+                 Text="{Binding Title, ValidatesOnDataErrors=False, ValidatesOnExceptions=True}"
+                 Style="{StaticResource ValueTextBox}">
+        </TextBox>
+
+        <TextBlock Grid.Row="2"
+                   Grid.Column="0"
+                   Text="Filename:"
+                   Style="{StaticResource LabelTextBlock}" />
+        <TextBox Grid.Row="2"
+                 Grid.Column="1"
+                 Text="{Binding Filename, ValidatesOnDataErrors=False, ValidatesOnExceptions=True}"
+                 Style="{StaticResource ValueTextBox}">
+        </TextBox>
+
+
+        <ItemsControl Grid.Row="3"
+                      Grid.ColumnSpan="2"
+                      ItemsSource="{Binding Attachments}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Path=DisplayText}"
+                               Margin="20, 5" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <TextBlock Grid.Row="4"
+                   Grid.Column="0"
+                   Text="Status:"
+                   Style="{StaticResource LabelTextBlock}" />
+        <TextBlock Grid.Row="4"
+                   Grid.Column="1"
+                   Text="{Binding Status}"
+                   Style="{StaticResource ValueTextBlock}" />
+
+        <StackPanel Grid.Row="5"
+                    Grid.Column="1"
+                    HorizontalAlignment="Left"
+                    Orientation="Horizontal">
+
+            <Button Content="PostAndUpload"
+                    Command="{Binding Path=PostAndUploadCommand}"
+                    Style="{StaticResource Button}" />
+
+            <Button Content="Add Attachment"
+                    Command="{Binding Path=AddAttachmentCommand}"
+                    Style="{StaticResource Button}" />
+        </StackPanel>
+        
+        <Button Grid.Row="5"
+                Grid.Column="1"
+                ContextMenuService.IsEnabled="False"
+                Click="Button_Click"
+                HorizontalAlignment="Right"
+                Style="{StaticResource Button}" >
+            <Button.Content>
+                <Path x:Name="BtnArrow" Margin="4" VerticalAlignment="Center" Width="6" Fill="#FF527DB5" Stretch="Uniform" HorizontalAlignment="Right" Data="F1 M 301.14,-189.041L 311.57,-189.041L 306.355,-182.942L 301.14,-189.041 Z "/>
+            </Button.Content>
+            <Button.ContextMenu>
+                <ContextMenu >
+                    <MenuItem Header="Reupload file(s)" Command="{Binding Path=UploadFileCommand}"/>
+                    <MenuItem Header="Repost Message" Command="{Binding Path=SendEmailCommand}"/>
+                </ContextMenu>
+            </Button.ContextMenu>
+        </Button>
+    </Grid>
+</Window>
