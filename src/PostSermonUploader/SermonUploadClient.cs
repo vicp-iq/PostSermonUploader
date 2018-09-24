@@ -4,6 +4,7 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace PostSermonUploader
 {
@@ -38,6 +39,38 @@ namespace PostSermonUploader
             UploadSermonBackgroundWorker.ProgressChanged += OnSermonUploadProgressChanged;
             UploadSermonBackgroundWorker.RunWorkerCompleted += OnSermonUploadComplete;
             UploadSermonBackgroundWorker.WorkerReportsProgress = true;
+        }
+
+        public static async Task PerformUpload(FtpState ftpState)
+        {
+            Stream requestStream;
+            // End the asynchronous call to get the request stream.
+
+            requestStream = ftpState.Request.GetRequestStream();
+            // Copy the file contents to the request stream.
+            const int bufferLength = 10000;
+            byte[] buffer = new byte[bufferLength];
+            int count = 0;
+            int readBytes;
+            FileStream stream = File.OpenRead(ftpState.FileName);
+            do
+            {
+                readBytes = stream.Read(buffer, 0, bufferLength);
+                requestStream.Write(buffer, 0, readBytes);
+                count += readBytes;
+                //worker.ReportProgress((int)(((double)count / stream.Length) * 100));
+            } while (readBytes != 0);
+
+            // IMPORTANT: Close the request stream before sending the request.
+            requestStream.Close();
+            stream.Close();
+
+            FtpWebResponse response = null;
+            response = (FtpWebResponse)ftpState.Request.GetResponse();
+            response.Close();
+            ftpState.StatusDescription = response.StatusDescription;
+
+            //e.Result = ftpState;
         }
 
         public static SermonUploadClient Client
