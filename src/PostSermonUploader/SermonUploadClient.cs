@@ -110,9 +110,9 @@ namespace PostSermonUploader
                 request = GetDownloadsFileClient(FTPServerAddress + Path.GetDirectoryName(lServerPath));
                 request.Method = WebRequestMethods.Ftp.MakeDirectory;
                 response = (FtpWebResponse)request.GetResponse();
-                if (response.StatusCode == FtpStatusCode.PathnameCreated)
+                if (response.StatusCode != FtpStatusCode.PathnameCreated)
                 {
-                    //Do stuff
+                    throw new Exception("Failed to create new folder");
                 }
             }
 
