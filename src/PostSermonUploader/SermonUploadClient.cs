@@ -27,50 +27,31 @@ namespace PostSermonUploader
 
         private static SermonUploadClient _client;
 
-        private SermonUploadClient()
+        public async Task PerformUpload(FtpState ftpState)
         {
-            InitializeUploadSermonBackgroundWorker();
-        }
-
-        private void InitializeUploadSermonBackgroundWorker()
-        {
-            UploadSermonBackgroundWorker = new BackgroundWorker();
-            UploadSermonBackgroundWorker.DoWork += UploadSermonAsync;
-            UploadSermonBackgroundWorker.ProgressChanged += OnSermonUploadProgressChanged;
-            UploadSermonBackgroundWorker.RunWorkerCompleted += OnSermonUploadComplete;
-            UploadSermonBackgroundWorker.WorkerReportsProgress = true;
-        }
-
-        public static async Task PerformUpload(FtpState ftpState)
-        {
-            Stream requestStream;
-            // End the asynchronous call to get the request stream.
-
-            requestStream = ftpState.Request.GetRequestStream();
-            // Copy the file contents to the request stream.
-            const int bufferLength = 10000;
-            byte[] buffer = new byte[bufferLength];
-            int count = 0;
-            int readBytes;
-            FileStream stream = File.OpenRead(ftpState.FileName);
-            do
+            using (var requestStream = await ftpState.Request.GetRequestStreamAsync())
             {
-                readBytes = stream.Read(buffer, 0, bufferLength);
-                requestStream.Write(buffer, 0, readBytes);
-                count += readBytes;
-                //worker.ReportProgress((int)(((double)count / stream.Length) * 100));
-            } while (readBytes != 0);
+                const int bufferLength = 10000;
+                byte[] buffer = new byte[bufferLength];
+                int count = 0;
+                int readBytes;
+                using (FileStream stream = File.OpenRead(ftpState.FileName))
+                {
+                    do
+                    {
+                        readBytes = await stream.ReadAsync(buffer, 0, bufferLength);
+                        await requestStream.WriteAsync(buffer, 0, readBytes);
+                        count += readBytes;
+                        var percentageComplete = (int) (((double) count / stream.Length) * 100);
+                        UpdateStatusMessage($"Uploading Sermon ({percentageComplete}% complete)");
+                    } while (readBytes != 0);
+                }
+            }
 
-            // IMPORTANT: Close the request stream before sending the request.
-            requestStream.Close();
-            stream.Close();
-
-            FtpWebResponse response = null;
-            response = (FtpWebResponse)ftpState.Request.GetResponse();
-            response.Close();
-            ftpState.StatusDescription = response.StatusDescription;
-
-            //e.Result = ftpState;
+            using (FtpWebResponse response = (FtpWebResponse) await ftpState.Request.GetResponseAsync())
+            {
+                ftpState.StatusDescription = response.StatusDescription;
+            }
         }
 
         public static SermonUploadClient Client
@@ -86,15 +67,8 @@ namespace PostSermonUploader
             }
         }
 
-        public bool IsUploadInProgress
-        {
-            get
-            {
-                return UploadSermonBackgroundWorker.IsBusy;
-            }
-        }
+        public bool IsUploadInProgress { get; set; }
 
-        private BackgroundWorker UploadSermonBackgroundWorker { get; set; }
         public Action<string> UpdateStatusMessage { get; set; }
 
         private FtpWebRequest GetDownloadsFileClient(string fileURL)
@@ -105,8 +79,9 @@ namespace PostSermonUploader
             return client;
         }
 
-        public void UploadSermon(string fileName)
+        public async Task UploadSermon(string fileName)
         {
+            IsUploadInProgress = true;
             var lTimeStamp = Utilities.ParseFilename(fileName);
             var lLocalPath = GetPath(lTimeStamp, fileName, Environment.Local);
             var lServerPath = GetPath(lTimeStamp, fileName, Environment.Server);
@@ -124,7 +99,7 @@ namespace PostSermonUploader
             {
                 request = GetDownloadsFileClient(FTPServerAddress + Path.GetDirectoryName(lServerPath));
                 request.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
-                using (response = (FtpWebResponse)request.GetResponse())
+                using (response = (FtpWebResponse) await request.GetResponseAsync())
                 {
                     using (reader = new StreamReader(response.GetResponseStream()))
                     {
@@ -142,7 +117,7 @@ namespace PostSermonUploader
                 //create a new directory
                 request = GetDownloadsFileClient(FTPServerAddress + Path.GetDirectoryName(lServerPath));
                 request.Method = WebRequestMethods.Ftp.MakeDirectory;
-                response = (FtpWebResponse)request.GetResponse();
+                response = (FtpWebResponse)await request.GetResponseAsync();
                 if (response.StatusCode != FtpStatusCode.PathnameCreated)
                 {
                     throw new Exception("Failed to create new folder");
@@ -157,54 +132,9 @@ namespace PostSermonUploader
             state.Request = request;
             state.FileName = tempPath;
 
-            UploadSermonBackgroundWorker.RunWorkerAsync(state);
-        }
+            await PerformUpload(state);
 
-        private void OnSermonUploadComplete(object sender, RunWorkerCompletedEventArgs e)
-        {
-            var state = e.Result as FtpState;
-            UpdateStatusMessage("Sermon upload complete");
-            File.Delete(state.FileName);
-        }
-
-        private void OnSermonUploadProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            UpdateStatusMessage($"Uploading Sermon ({e.ProgressPercentage}% complete)");
-        }
-
-        private static void UploadSermonAsync(object sender, DoWorkEventArgs e)
-        {
-            BackgroundWorker worker = sender as BackgroundWorker;
-            FtpState state = (FtpState)e.Argument;
-
-            Stream requestStream;
-            // End the asynchronous call to get the request stream.
-
-            requestStream = state.Request.GetRequestStream();
-            // Copy the file contents to the request stream.
-            const int bufferLength = 10000;
-            byte[] buffer = new byte[bufferLength];
-            int count = 0;
-            int readBytes;
-            FileStream stream = File.OpenRead(state.FileName);
-            do
-            {
-                readBytes = stream.Read(buffer, 0, bufferLength);
-                requestStream.Write(buffer, 0, readBytes);
-                count += readBytes;
-                worker.ReportProgress((int)(((double)count / stream.Length) * 100));
-            } while (readBytes != 0);
-
-            // IMPORTANT: Close the request stream before sending the request.
-            requestStream.Close();
-            stream.Close();
-
-            FtpWebResponse response = null;
-            response = (FtpWebResponse)state.Request.GetResponse();
-            response.Close();
-            state.StatusDescription = response.StatusDescription;
-
-            e.Result = state;
+            IsUploadInProgress = false;
         }
 
         public static string GetPath(DateTime aTimeStamp, string aFileName, Environment lEnvironment)

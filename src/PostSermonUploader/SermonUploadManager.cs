@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Net;
 using System.Net.Mail;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace PostSermonUploader
@@ -21,7 +22,7 @@ namespace PostSermonUploader
             UpdateStatusMessage = updateStatusMessage;
         }
 
-        public void PostAndUpload()
+        public async void PostAndUpload()
         {
             if (FileNameIsValid())
             {
@@ -36,7 +37,7 @@ namespace PostSermonUploader
                 ftpClient.UpdateStatusMessage = UpdateStatusMessage;
 
                 SendEmail();
-                UploadFile();
+                await UploadFile();
             }
         }
 
@@ -103,7 +104,7 @@ namespace PostSermonUploader
             return result;
         }
 
-        public void UploadFile()
+        public async Task UploadFile()
         {
             if (FileNameIsValid())
             {
@@ -120,7 +121,7 @@ namespace PostSermonUploader
                 ftpClient.UpdateStatusMessage = UpdateStatusMessage;
 
                 var client = SermonUploadClient.Client;
-                client.UploadSermon(FileName);
+                await client.UploadSermon(FileName);
             }
         }
     }

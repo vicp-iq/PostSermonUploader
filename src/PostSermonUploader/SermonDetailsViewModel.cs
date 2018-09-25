@@ -118,7 +118,7 @@ namespace PostSermonUploader
             }
         }
 
-        private void UploadFile()
+        private async void UploadFile()
         {
             try
             {
@@ -133,7 +133,7 @@ namespace PostSermonUploader
                 ftpClient.UpdateStatusMessage = UpdateStatusMessage;
 
                 var uploader = new SermonUploadManager(Filename, Pastor, Title, UpdateStatusMessage);
-                uploader.UploadFile();
+                await uploader.UploadFile();
             }
             catch (Exception ex)
             {
