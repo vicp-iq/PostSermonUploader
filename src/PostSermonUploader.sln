@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E6188BA1-32EC-4A5E-959E-564A03BAFFBC}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPFFramework", "WPFFramework\WPFFramework.csproj", "{2DBD8EE7-4ADB-4A6D-98E5-511E83881C87}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostSermonUploader.IntegrationTests", "PostSermonUploader.IntegrationTests\PostSermonUploader.IntegrationTests.csproj", "{03FF2E60-0A66-4BB5-B6F8-5314B0141A3E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostSermonUploader.UnitTests", "PostSermonUploader.UnitTests\PostSermonUploader.UnitTests.csproj", "{3DEED16D-1833-434C-B30F-E8456E2AD77F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,14 +23,16 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1A2DE125-675E-4F98-A942-D1763CCDF25C}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{1A2DE125-675E-4F98-A942-D1763CCDF25C}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{1A2DE125-675E-4F98-A942-D1763CCDF25C}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{1A2DE125-675E-4F98-A942-D1763CCDF25C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A2DE125-675E-4F98-A942-D1763CCDF25C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A2DE125-675E-4F98-A942-D1763CCDF25C}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{1A2DE125-675E-4F98-A942-D1763CCDF25C}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{1A2DE125-675E-4F98-A942-D1763CCDF25C}.Debug|x86.ActiveCfg = Debug|x86
 		{1A2DE125-675E-4F98-A942-D1763CCDF25C}.Debug|x86.Build.0 = Debug|x86
-		{1A2DE125-675E-4F98-A942-D1763CCDF25C}.Release|Any CPU.ActiveCfg = Release|x86
-		{1A2DE125-675E-4F98-A942-D1763CCDF25C}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{1A2DE125-675E-4F98-A942-D1763CCDF25C}.Release|Mixed Platforms.Build.0 = Release|x86
+		{1A2DE125-675E-4F98-A942-D1763CCDF25C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A2DE125-675E-4F98-A942-D1763CCDF25C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A2DE125-675E-4F98-A942-D1763CCDF25C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{1A2DE125-675E-4F98-A942-D1763CCDF25C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{1A2DE125-675E-4F98-A942-D1763CCDF25C}.Release|x86.ActiveCfg = Release|x86
 		{1A2DE125-675E-4F98-A942-D1763CCDF25C}.Release|x86.Build.0 = Release|x86
 		{2DBD8EE7-4ADB-4A6D-98E5-511E83881C87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -53,23 +57,23 @@ Global
 		{03FF2E60-0A66-4BB5-B6F8-5314B0141A3E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{03FF2E60-0A66-4BB5-B6F8-5314B0141A3E}.Release|x86.ActiveCfg = Release|Any CPU
 		{03FF2E60-0A66-4BB5-B6F8-5314B0141A3E}.Release|x86.Build.0 = Release|Any CPU
+		{3DEED16D-1833-434C-B30F-E8456E2AD77F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DEED16D-1833-434C-B30F-E8456E2AD77F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DEED16D-1833-434C-B30F-E8456E2AD77F}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{3DEED16D-1833-434C-B30F-E8456E2AD77F}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{3DEED16D-1833-434C-B30F-E8456E2AD77F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3DEED16D-1833-434C-B30F-E8456E2AD77F}.Debug|x86.Build.0 = Debug|Any CPU
+		{3DEED16D-1833-434C-B30F-E8456E2AD77F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DEED16D-1833-434C-B30F-E8456E2AD77F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DEED16D-1833-434C-B30F-E8456E2AD77F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{3DEED16D-1833-434C-B30F-E8456E2AD77F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{3DEED16D-1833-434C-B30F-E8456E2AD77F}.Release|x86.ActiveCfg = Release|Any CPU
+		{3DEED16D-1833-434C-B30F-E8456E2AD77F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 4
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://sandro997.visualstudio.com/defaultcollection
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = PostSermonUploader\\PostSermonUploader.csproj
-		SccProjectName1 = PostSermonUploader
-		SccLocalPath1 = PostSermonUploader
-		SccProjectUniqueName2 = WPFFramework\\WPFFramework.csproj
-		SccProjectName2 = WPFFramework
-		SccLocalPath2 = WPFFramework
-		SccProjectUniqueName3 = PostSermonUploader.IntegrationTests\\PostSermonUploader.IntegrationTests.csproj
-		SccProjectName3 = PostSermonUploader.IntegrationTests
-		SccLocalPath3 = PostSermonUploader.IntegrationTests
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E78E7D05-9139-4D2B-BD8B-1BFC48BB7807}
 	EndGlobalSection
 EndGlobal
