@@ -125,7 +125,7 @@
     <Compile Include="Views\SermonDetailsViewModel.cs" />
     <Compile Include="Controllers\SermonUploader.cs" />
     <Compile Include="Helpers\Utilities.cs" />
-    <Compile Include="Clients\SermonUploadClient.cs" />
+    <Compile Include="Controllers\SermonUploadClient.cs" />
     <Compile Include="Helpers\MonthMapping.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -3,9 +3,10 @@ using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using PostSermonUploader.Clients;
 using PostSermonUploader.Helpers;
 
-namespace PostSermonUploader.Clients
+namespace PostSermonUploader.Controllers
 {
     //Tracks whether there is an upload in progress
     //Knows how to figure out paths
