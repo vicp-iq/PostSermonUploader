@@ -1,12 +1,12 @@
 using System;
-using System.ComponentModel;
 using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using PostSermonUploader.Helpers;
 
-namespace PostSermonUploader
+namespace PostSermonUploader.Clients
 {
     public class SermonUploadClient
     {

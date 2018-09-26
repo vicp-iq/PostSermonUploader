@@ -1,4 +1,4 @@
-namespace PostSermonUploader
+namespace PostSermonUploader.Models
 {
     public class SermonDetails
     {

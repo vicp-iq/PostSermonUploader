@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 
-namespace PostSermonUploader
+namespace PostSermonUploader.Clients
 {
     public class FTPClient
     {

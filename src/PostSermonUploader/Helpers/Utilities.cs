@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace PostSermonUploader
+namespace PostSermonUploader.Helpers
 {
     public static class Utilities
     {

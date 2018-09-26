@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace PostSermonUploader
+namespace PostSermonUploader.Helpers
 {
     public class MonthMapping
     {

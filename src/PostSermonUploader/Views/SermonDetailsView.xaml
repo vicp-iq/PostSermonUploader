@@ -1,11 +1,11 @@
-﻿<Window x:Class="PostSermonUploader.SermonDetailsView"
+﻿<Window x:Class="PostSermonUploader.Views.SermonDetailsView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:postSermonUploader="clr-namespace:PostSermonUploader"
+        xmlns:views="clr-namespace:PostSermonUploader.Views"
         mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance postSermonUploader:SermonDetailsViewModel}"
+        d:DataContext="{d:DesignInstance views:SermonDetailsViewModel}"
         Title="Sermon Uploader" Width="400">
     <Grid>
         <Grid.ColumnDefinitions>

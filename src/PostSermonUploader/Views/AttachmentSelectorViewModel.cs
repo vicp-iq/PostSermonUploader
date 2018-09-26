@@ -3,7 +3,7 @@ using Frameworks.Presentation;
 using Microsoft.Practices.Prism.Commands;
 using Microsoft.Win32;
 
-namespace PostSermonUploader
+namespace PostSermonUploader.Views
 {
     public class AttachmentSelectorViewModel: ViewModel
     {

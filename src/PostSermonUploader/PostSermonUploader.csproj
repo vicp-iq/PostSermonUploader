@@ -94,21 +94,21 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Attachment.cs" />
-    <Compile Include="AttachmentSelectorView.xaml.cs">
+    <Compile Include="Models\Attachment.cs" />
+    <Compile Include="Views\AttachmentSelectorView.xaml.cs">
       <DependentUpon>AttachmentSelectorView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AttachmentSelectorViewModel.cs" />
-    <Compile Include="FTPClient.cs" />
-    <Compile Include="SermonDetails.cs" />
-    <Compile Include="SermonDetailsView.xaml.cs">
+    <Compile Include="Views\AttachmentSelectorViewModel.cs" />
+    <Compile Include="Clients\FTPClient.cs" />
+    <Compile Include="Models\SermonDetails.cs" />
+    <Compile Include="Views\SermonDetailsView.xaml.cs">
       <DependentUpon>SermonDetailsView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SermonDetailsViewModel.cs" />
-    <Compile Include="SermonUploadManager.cs" />
-    <Compile Include="Utilities.cs" />
-    <Compile Include="SermonUploadClient.cs" />
-    <Compile Include="MonthMapping.cs">
+    <Compile Include="Views\SermonDetailsViewModel.cs" />
+    <Compile Include="Controllers\SermonUploader.cs" />
+    <Compile Include="Helpers\Utilities.cs" />
+    <Compile Include="Clients\SermonUploadClient.cs" />
+    <Compile Include="Helpers\MonthMapping.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -173,7 +173,7 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="AttachmentSelectorView.xaml">
+    <Page Include="Views\AttachmentSelectorView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -181,7 +181,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="SermonDetailsView.xaml">
+    <Page Include="Views\SermonDetailsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

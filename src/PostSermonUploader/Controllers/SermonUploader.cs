@@ -4,17 +4,19 @@ using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using PostSermonUploader.Clients;
+using PostSermonUploader.Helpers;
 
-namespace PostSermonUploader
+namespace PostSermonUploader.Controllers
 {
-    public class SermonUploadManager
+    public class SermonUploader
     {
         private string FileName { get; set; }
         private string Pastor { get; set; }
         private string Title { get; set; }
         private Action<string> UpdateStatusMessage { get; set; }
 
-        public SermonUploadManager(string fileName, string pastor, string title, Action<string> updateStatusMessage)
+        public SermonUploader(string fileName, string pastor, string title, Action<string> updateStatusMessage)
         {
             FileName = fileName;
             Pastor = pastor;

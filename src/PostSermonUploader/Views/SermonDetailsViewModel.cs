@@ -1,11 +1,15 @@
-﻿using Frameworks.Presentation;
-using Microsoft.Practices.Prism.Commands;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
+using Frameworks.Presentation;
+using Microsoft.Practices.Prism.Commands;
+using PostSermonUploader.Clients;
+using PostSermonUploader.Controllers;
+using PostSermonUploader.Helpers;
+using PostSermonUploader.Models;
 
-namespace PostSermonUploader
+namespace PostSermonUploader.Views
 {
     public class SermonDetailsViewModel : ViewModel
     {
@@ -88,7 +92,7 @@ namespace PostSermonUploader
         {
             PostAndUploadCommand = new DelegateCommand(PostAndUpload);
             SendEmailCommand = new DelegateCommand(SendEmail);
-            UploadFileCommand = new DelegateCommand(UploadFile);
+            UploadFileCommand = new DelegateCommand(UploadFiles);
             AddAttachmentCommand = new DelegateCommand(AddAttachment);
         }
 
@@ -109,7 +113,7 @@ namespace PostSermonUploader
         {
             try
             {
-                var uploader = new SermonUploadManager(Filename, Pastor, Title, UpdateStatusMessage);
+                var uploader = new SermonUploader(Filename, Pastor, Title, UpdateStatusMessage);
                 uploader.SendEmail();
             }
             catch (Exception ex)
@@ -118,7 +122,7 @@ namespace PostSermonUploader
             }
         }
 
-        private async void UploadFile()
+        private async void UploadFiles()
         {
             try
             {
@@ -132,8 +136,10 @@ namespace PostSermonUploader
 
                 ftpClient.UpdateStatusMessage = UpdateStatusMessage;
 
-                var uploader = new SermonUploadManager(Filename, Pastor, Title, UpdateStatusMessage);
-                await uploader.UploadFile();
+                var sermonUploadManager = new SermonUploader(Filename, Pastor, Title, UpdateStatusMessage);
+                await sermonUploadManager.UploadFile();
+
+                //var fileUploader = 
             }
             catch (Exception ex)
             {
@@ -145,7 +151,7 @@ namespace PostSermonUploader
         {
             try
             {
-                var uploader = new SermonUploadManager(Filename, Pastor, Title, UpdateStatusMessage);
+                var uploader = new SermonUploader(Filename, Pastor, Title, UpdateStatusMessage);
                 uploader.PostAndUpload();
             }
             catch (Exception ex)

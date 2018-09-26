@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using PostSermonUploader.Clients;
 
 namespace PostSermonUploader.IntegrationTests
 {
