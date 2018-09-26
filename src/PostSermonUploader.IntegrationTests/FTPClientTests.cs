@@ -1,47 +1,42 @@
 ﻿using System.IO;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using PostSermonUploader.Clients;
 
 namespace PostSermonUploader.IntegrationTests
 {
-    [TestClass]
+    [TestFixture]
     public class FTPClientTests
     {
         private FTPClient sut;
 
-        [TestInitialize]
+        [OneTimeSetUp]
         public void ClassInitialize()
         {
             sut = new FTPClient();
         }
 
-        [TestMethod]
-        public void UploadFile_ShouldNotThrowException_WhenUploadingFileToRootFolder()
+        [Test]
+        public async Task UploadFile_ShouldNotThrowException_WhenUploadingFileToExistingFolder()
         {
-            var sourceFile = @"./SourceFile.txt";
-            var targetFile = @"SourceFile.txt";
+            var sourceFile = TestHelper.GetTestsPath(@"./SourceFile.txt");
+            var targetFile = @"tests/SourceFile.txt";
 
-            sut.UploadFile(sourceFile, targetFile);
+            await sut.UploadFile(sourceFile, targetFile);
         }
 
-        [TestMethod]
-        public void UploadFile_ShouldNotThrowException_WhenUploadingFileToNonExistentFolder()
+        [Test]
+        public async Task UploadFile_ShouldNotThrowException_WhenUploadingFileToNonExistentFolder()
         {
-            var sourceFile = @"./SourceFile.txt";
-            var targetFile = @"FTPClientTests/SourceFile.txt";
+            var sourceFile = TestHelper.GetTestsPath(@"./SourceFile.txt");
+            var targetFile = @"tests/FTPClientTests/SourceFile.txt";
 
             //Validate Folder Doesn't Exist
 
-            sut.UploadFile(sourceFile, targetFile);
+            await sut.UploadFile(sourceFile, targetFile);
         }
 
-
-
-        //var fileNameInTarget = Path.Combine(targetFolder, Path.GetFileName(sourceFile));
-
-        //var actual = sut.DownloadFile(fileNameInTarget);
-        //var expected = File.ReadAllText(sourceFile);
-
-        //Assert.AreEqual(expected, actual);
+        //TODO: Should Send the completion percentage somewhere
     }
 }

@@ -3,10 +3,11 @@ using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace PostSermonUploader.Clients
 {
-    public class FTPClient
+    public class FTPClient:IFTPClient
     {
         private string FTPServerAddress
         {
@@ -23,96 +24,98 @@ namespace PostSermonUploader.Clients
             get { return ConfigurationManager.AppSettings["FTPServerPassword"]; }
         }
 
-        public void UploadFile(string sourceFile, string targetFolder)
+        public async Task UploadFile(string lLocalPath, string lServerPath)
         {
-            var targetUploadPath = FTPServerAddress + targetFolder;
+            var tempPath = CopyFileToTempFolder(lLocalPath);
 
-            if (!DoesFolderExistForFile(targetUploadPath))
-            {
-                CreateFolderForFile(targetUploadPath);
-            }
-
-            PerformUpload(sourceFile, targetUploadPath);
+            await CreateFolderIfNecessary(lServerPath);
+            await PerformUpload(lServerPath, tempPath);
         }
 
-        private bool DoesFolderExistForFile(string targetFilePath)
+        private static string CopyFileToTempFolder(string lLocalPath)
         {
-            var targetFolderPath = Path.GetDirectoryName(targetFilePath);
-            if (targetFolderPath == null)
-                return true;
-
-            var ftpWebRequest = GenerateWebRequestForUri(targetFolderPath);
-
-            string directoryContents;
-            ftpWebRequest.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
-            using (var response = (FtpWebResponse) ftpWebRequest.GetResponse())
-            {
-                var responseStream = response.GetResponseStream();
-
-                Debug.Assert(responseStream != null, "responseStream != null");
-                using (var reader = new StreamReader(responseStream))
-                {
-                    directoryContents = reader.ReadToEnd();
-                }
-            }
-
-            return !string.IsNullOrEmpty(directoryContents);
+            var tempPath = Path.GetTempFileName();
+            File.Copy(lLocalPath, tempPath, true);
+            return tempPath;
         }
 
-        private void CreateFolderForFile(string targetFilePath)
+        private async Task PerformUpload(string lServerPath, string tempPath)
         {
-            var targetFolderPath = Path.GetDirectoryName(targetFilePath);
-            if (targetFolderPath == null)
-                throw new NotSupportedException("Should not have hit this code for files in the root path");
+            var state = new FtpState();
+            var request = (FtpWebRequest) (WebRequest.Create(FTPServerAddress + lServerPath));
+            request.Credentials = new NetworkCredential(Username, Password);
+            request.Method = WebRequestMethods.Ftp.UploadFile;
 
-            var ftpWebRequest = GenerateWebRequestForUri(targetFolderPath);
-            ftpWebRequest.Method = WebRequestMethods.Ftp.MakeDirectory;
-            using (var response = (FtpWebResponse) ftpWebRequest.GetResponse())
-            {
-                if (response.StatusCode != FtpStatusCode.PathnameCreated)
-                {
-                    throw new Exception($"Failed to create folder: {response.StatusCode}");
-                }
-            }
-        }
+            state.Request = request;
+            state.FileName = tempPath;
 
-        private void PerformUpload(string sourceFile, string targetUploadPath)
-        {
-            var ftpWebRequest = GenerateWebRequestForUri(targetUploadPath);
-
-            ftpWebRequest.Method = WebRequestMethods.Ftp.UploadFile;
-
-            using (var sourceFileStream = File.OpenRead(sourceFile))
+            using (var requestStream = await state.Request.GetRequestStreamAsync())
             {
                 const int bufferLength = 10000;
                 byte[] buffer = new byte[bufferLength];
-
-                using (var ftpRequestStream = ftpWebRequest.GetRequestStream())
+                int count = 0;
+                int readBytes;
+                using (FileStream stream = File.OpenRead(state.FileName))
                 {
-                    int bytesRead;
                     do
                     {
-                        bytesRead = sourceFileStream.Read(buffer, 0, bufferLength);
-                        ftpRequestStream.Write(buffer, 0, bytesRead);
-                    } while (bytesRead != 0);
+                        readBytes = await stream.ReadAsync(buffer, 0, bufferLength);
+                        await requestStream.WriteAsync(buffer, 0, readBytes);
+                        count += readBytes;
+                        var percentageComplete = (int) (((double) count / stream.Length) * 100);
+                        //UpdateStatusMessage($"Uploading Sermon ({percentageComplete}% complete)");
+                    } while (readBytes != 0);
+                }
+            }
+
+            using (FtpWebResponse response = (FtpWebResponse) await state.Request.GetResponseAsync())
+            {
+                state.StatusDescription = response.StatusDescription;
+            }
+        }
+
+        private async Task CreateFolderIfNecessary(string lServerPath)
+        {
+            FtpWebRequest request;
+            FtpWebResponse response;
+            StreamReader reader;
+            string directoryContents = null;
+
+            try
+            {
+                request = GetDownloadsFileClient(FTPServerAddress + Path.GetDirectoryName(lServerPath));
+                request.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
+                using (response = (FtpWebResponse) await request.GetResponseAsync())
+                {
+                    using (reader = new StreamReader(response.GetResponseStream()))
+                    {
+                        directoryContents = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (WebException)
+            {
+                //Swallow this exception because there is a bug that causes it if the directory is empty
+            }
+
+            if (string.IsNullOrEmpty(directoryContents))
+            {
+                request = GetDownloadsFileClient(FTPServerAddress + Path.GetDirectoryName(lServerPath));
+                request.Method = WebRequestMethods.Ftp.MakeDirectory;
+                response = (FtpWebResponse) await request.GetResponseAsync();
+                if (response.StatusCode != FtpStatusCode.PathnameCreated)
+                {
+                    throw new Exception("Failed to create new folder");
                 }
             }
         }
 
-        private FtpWebRequest GenerateWebRequestForUri(string targetUploadPath)
+        private FtpWebRequest GetDownloadsFileClient(string fileURL)
         {
-            var ftpWebRequest = (FtpWebRequest) WebRequest.Create(targetUploadPath);
+            var client = (FtpWebRequest)(WebRequest.Create(fileURL));
+            client.Credentials = new NetworkCredential(Username, Password);
 
-            if (Username != null)
-            {
-                ftpWebRequest.Credentials = new NetworkCredential(Username, Password);
-            }
-            return ftpWebRequest;
-        }
-
-        public string DownloadFile(string fileNameInTarget)
-        {
-            throw new NotImplementedException();
+            return client;
         }
     }
 }
