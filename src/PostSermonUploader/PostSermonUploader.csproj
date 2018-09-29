@@ -112,8 +112,8 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Clients\IFTPClient.cs" />
-    <Compile Include="Controllers\Environment.cs" />
-    <Compile Include="Controllers\FtpState.cs" />
+    <Compile Include="Helpers\Environment.cs" />
+    <Compile Include="Helpers\FtpState.cs" />
     <Compile Include="Models\Attachment.cs" />
     <Compile Include="Views\AttachmentSelectorView.xaml.cs">
       <DependentUpon>AttachmentSelectorView.xaml</DependentUpon>

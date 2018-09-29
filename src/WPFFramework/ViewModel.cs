@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Linq.Expressions;
 using Microsoft.Practices.Prism.ViewModel;
 
-namespace Frameworks.Presentation
+namespace WPFFramework
 {
     public class ViewModel : NotificationObject, IDataErrorInfo
     {

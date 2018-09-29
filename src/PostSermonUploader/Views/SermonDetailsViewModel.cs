@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
-using Frameworks.Presentation;
-using Microsoft.Practices.Prism.Commands;
 using PostSermonUploader.Clients;
 using PostSermonUploader.Controllers;
 using PostSermonUploader.Helpers;
 using PostSermonUploader.Models;
+using WPFFramework;
 
 namespace PostSermonUploader.Views
 {
@@ -96,7 +96,7 @@ namespace PostSermonUploader.Views
             AddAttachmentCommand = new DelegateCommand(AddAttachment);
         }
 
-        private void AddAttachment()
+        private Task AddAttachment()
         {
             var attachmentSelectorViewModel = new AttachmentSelectorViewModel();
             var attachmentSelectorView = new AttachmentSelectorView {DataContext = attachmentSelectorViewModel};
@@ -107,14 +107,23 @@ namespace PostSermonUploader.Views
             {
                 Attachments.Add(new Attachment { Name = attachmentSelectorViewModel.Title, Path = attachmentSelectorViewModel.File });
             }
+
+            return null;
         }
 
-        private void SendEmail()
+        private async Task SendEmail()
         {
             try
             {
-                var uploader = new SermonUploader(Filename, Pastor, Title, UpdateStatusMessage);
-                uploader.SendEmail();
+                var sermonUploader = new SermonUploader
+                {
+                    FileName = Filename,
+                    Pastor = Pastor,
+                    UpdateStatusMessage = UpdateStatusMessage,
+                    Title = Title,
+                    Attachments = Attachments.ToArray()
+                };
+                await sermonUploader.SendEmail();
             }
             catch (Exception ex)
             {
@@ -122,18 +131,20 @@ namespace PostSermonUploader.Views
             }
         }
 
-        private async void UploadFiles()
+        private async Task UploadFiles()
         {
             try
             {
-                if (SermonUploader.IsUploadInProgress)
+                var sermonUploader = new SermonUploader
                 {
-                    MessageBox.Show("Clicking more won't make it go faster, you know (Proverbs 15:18).");
-                    return;
-                }
+                    FileName = Filename,
+                    Pastor = Pastor,
+                    UpdateStatusMessage = UpdateStatusMessage,
+                    Title = Title,
+                    Attachments = Attachments.ToArray()
+                };
 
-                var sermonUploadManager = new SermonUploader(Filename, Pastor, Title, UpdateStatusMessage);
-                await sermonUploadManager.UploadFiles();
+                await sermonUploader.PerformUpload();
             }
             catch (Exception ex)
             {
@@ -141,12 +152,12 @@ namespace PostSermonUploader.Views
             }
         }
 
-        private void PostAndUpload()
+        private async Task PostAndUpload()
         {
             try
             {
-                var uploader = new SermonUploader(Filename, Pastor, Title, UpdateStatusMessage);
-                uploader.PostAndUpload();
+                await SendEmail();
+                await UploadFiles();
             }
             catch (Exception ex)
             {

@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace PostSermonUploader.Controllers
+namespace PostSermonUploader.Helpers
 {
     public class FtpState
     {

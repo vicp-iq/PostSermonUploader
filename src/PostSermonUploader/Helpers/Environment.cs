@@ -1,4 +1,4 @@
-﻿namespace PostSermonUploader.Controllers
+﻿namespace PostSermonUploader.Helpers
 {
     public enum Environment
     {

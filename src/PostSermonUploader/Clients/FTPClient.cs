@@ -5,6 +5,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using PostSermonUploader.Controllers;
+using PostSermonUploader.Helpers;
 
 namespace PostSermonUploader.Clients
 {

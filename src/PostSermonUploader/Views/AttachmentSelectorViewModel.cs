@@ -1,7 +1,8 @@
 ﻿using System.Windows;
-using Frameworks.Presentation;
 using Microsoft.Practices.Prism.Commands;
 using Microsoft.Win32;
+using WPFFramework;
+using DelegateCommand = Microsoft.Practices.Prism.Commands.DelegateCommand;
 
 namespace PostSermonUploader.Views
 {

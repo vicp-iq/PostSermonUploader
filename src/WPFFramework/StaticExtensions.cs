@@ -2,7 +2,7 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Frameworks.Presentation
+namespace WPFFramework
 {
     public static class StaticReflectionExtensions
     {

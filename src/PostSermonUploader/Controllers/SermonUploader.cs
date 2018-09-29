@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
@@ -7,43 +8,35 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using PostSermonUploader.Clients;
 using PostSermonUploader.Helpers;
+using Attachment = PostSermonUploader.Models.Attachment;
+using Environment = PostSermonUploader.Helpers.Environment;
 
 namespace PostSermonUploader.Controllers
 {
     public class SermonUploader
-    {
-        private string FileName { get; set; }
-        private string Pastor { get; set; }
-        private string Title { get; set; }
-        private Action<string> UpdateStatusMessage { get; set; }
+    { 
+        public string FileName { get; set; }
+        public string Pastor { get; set; }
+        public string Title { get; set; }
+        public Attachment[] Attachments { get; set; }
+
+        public Action<string> UpdateStatusMessage { get; set; }
 
         public static bool IsUploadInProgress { get; set; }
 
-        private readonly IFTPClient _ftpClient;
-
-        public SermonUploader(string fileName, string pastor, string title, Action<string> updateStatusMessage)
+        private IFTPClient _ftpClient;
+        private IFTPClient FTPClient
         {
-            FileName = fileName;
-            Pastor = pastor;
-            Title = title;
-            UpdateStatusMessage = updateStatusMessage;
-
-            _ftpClient = new FTPClient(UpdateStatusMessage);
+            get => _ftpClient ?? (_ftpClient = new FTPClient(UpdateStatusMessage));
+            set => _ftpClient = value;
         }
 
-        public async void PostAndUpload()
-        {
-            if (FileNameIsValid())
-            {
-                if (IsUploadInProgress)
-                {
-                    MessageBox.Show(@"Clicking more won't make it go faster, you know (Proverbs 15:18).");
-                    return;
-                }
+        public SermonUploader()
+        { }
 
-                SendEmail();
-                await UploadFiles();
-            }
+        public SermonUploader(IFTPClient ftpClient)
+        {
+            FTPClient = ftpClient;
         }
 
         private bool FileNameIsValid()
@@ -58,7 +51,7 @@ namespace PostSermonUploader.Controllers
             return true;
         }
 
-        public void SendEmail()
+        public async Task SendEmail()
         {
             if (FileNameIsValid())
             {
@@ -81,7 +74,7 @@ namespace PostSermonUploader.Controllers
 
                 try
                 {
-                    client.Send(message);
+                    //await client.SendMailAsync(message);
 
                     UpdateStatusMessage("Posted");
                 }
@@ -96,9 +89,9 @@ namespace PostSermonUploader.Controllers
         private string MakeBody()
         {
             var result =
-                $@"[audio mp3=""http://proceduraltextures.com/trinity{GetPath(FileName,
+                $@"[audio mp3=""http://proceduraltextures.com/trinity{GetPath(
                     Environment.Server)}""][/audio]
-<a href=""http://proceduraltextures.com/trinity/wp-content/uploads/downloadfile.php?file={GetPath(FileName,
+<a href=""http://proceduraltextures.com/trinity/wp-content/uploads/downloadfile.php?file={GetPath(
                     Environment.RelativeServer)}"">Download</a>";
             return result;
         }
@@ -109,7 +102,7 @@ namespace PostSermonUploader.Controllers
             return result;
         }
 
-        public async Task UploadFiles()
+        public async Task PerformUpload()
         {
             if (FileNameIsValid())
             {
@@ -121,51 +114,72 @@ namespace PostSermonUploader.Controllers
                     return;
                 }
 
-                await UploadFilesCore(FileName);
+                await PerformUploadCore();
             }
         }
 
-        private async Task UploadFilesCore(string fileName)
+        private async Task PerformUploadCore()
         {
             IsUploadInProgress = true;
-            var lTimeStamp = Utilities.ParseFilename(fileName);
-            var lLocalPath = GetPath(lTimeStamp, fileName, Environment.Local);
-            var lServerPath = GetPath(lTimeStamp, fileName, Environment.Server);
 
-            await _ftpClient.UploadFile(lLocalPath, lServerPath);
+            await UploadSermon();
+            await UploadAttachments();
 
             IsUploadInProgress = false;
         }
 
-        private static string GetPath(DateTime aTimeStamp, string aFileName, Environment lEnvironment)
+        private async Task UploadSermon()
         {
-            string lReturn;
+            var localPath = GetPath(Environment.Local);
+            var serverPath = GetPath(Environment.Server);
 
-            var lMonth = MonthMapping.Mappings.Single(x => x.Number == aTimeStamp.Month);
+            await FTPClient.UploadFile(localPath, serverPath);
+        }
 
-            switch (lEnvironment)
+        public async Task UploadAttachments()
+        {
+            var serverDirectory = GetDirectory(Environment.Server);
+
+            foreach (var attachment in Attachments)
+            {
+                var fileName = Path.GetFileName(attachment.Path);
+                var serverPath = Path.Combine(serverDirectory, fileName ?? throw new InvalidOperationException());
+                await FTPClient.UploadFile(attachment.Path, serverPath);
+            }
+        }
+
+        private string GetDirectory(Environment environment)
+        {
+            var timeStamp = Utilities.ParseFilename(FileName);
+
+            string result;
+
+            var month = MonthMapping.Mappings.Single(x => x.Number == timeStamp.Month);
+
+            switch (environment)
             {
                 case Environment.Local:
-                    lReturn =
-                        $@"{ConfigurationManager.AppSettings["RecordingLocation"]}/{aTimeStamp.Year}/{lMonth.LocalName}/{aFileName}";
+                    result =
+                        $@"{ConfigurationManager.AppSettings["RecordingLocation"]}/{timeStamp.Year}/{month.LocalName}";
                     break;
                 case Environment.Server:
-                    lReturn = $@"/wp-content/uploads//{aTimeStamp.Year}/{lMonth.ServerName}/{aFileName}";
+                    result = $@"/wp-content/uploads/{timeStamp.Year}/{month.ServerName}";
                     break;
                 case Environment.RelativeServer:
-                    lReturn = $@"{aTimeStamp.Year}/{lMonth.ServerName}/{aFileName}";
+                    result = $@"{timeStamp.Year}/{month.ServerName}";
                     break;
                 default:
                     throw new NotSupportedException();
             }
 
-            return lReturn;
+            return result;
         }
 
-        private static string GetPath(string fileName, Environment environment)
+        private string GetPath(Environment environment)
         {
-            var lTimeStamp = Utilities.ParseFilename(fileName);
-            return GetPath(lTimeStamp, fileName, environment);
+            var directory = GetDirectory(environment);
+
+            return Path.Combine(directory, FileName);
         }
     }
 }
