@@ -14,7 +14,7 @@ namespace PostSermonUploader.IntegrationTests
         [OneTimeSetUp]
         public void ClassInitialize()
         {
-            sut = new FTPClient();
+            sut = new FTPClient(x => { });
         }
 
         [Test]

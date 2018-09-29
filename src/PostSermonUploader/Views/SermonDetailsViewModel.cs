@@ -126,20 +126,14 @@ namespace PostSermonUploader.Views
         {
             try
             {
-                var ftpClient = SermonUploadClient.Client;
-
-                if (ftpClient.IsUploadInProgress)
+                if (SermonUploader.IsUploadInProgress)
                 {
                     MessageBox.Show("Clicking more won't make it go faster, you know (Proverbs 15:18).");
                     return;
                 }
 
-                ftpClient.UpdateStatusMessage = UpdateStatusMessage;
-
                 var sermonUploadManager = new SermonUploader(Filename, Pastor, Title, UpdateStatusMessage);
-                await sermonUploadManager.UploadFile();
-
-                //var fileUploader = 
+                await sermonUploadManager.UploadFiles();
             }
             catch (Exception ex)
             {

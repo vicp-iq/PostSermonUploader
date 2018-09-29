@@ -10,6 +10,13 @@ namespace PostSermonUploader.Clients
 {
     public class FTPClient:IFTPClient
     {
+        public Action<string> UpdateStatusMessage { get; }
+
+        public FTPClient(Action<string> updateStatusMessage)
+        {
+            UpdateStatusMessage = updateStatusMessage;
+        }
+
         private string FTPServerAddress
         {
             get { return ConfigurationManager.AppSettings["FTPServerAddress"]; }
@@ -64,7 +71,7 @@ namespace PostSermonUploader.Clients
                         await requestStream.WriteAsync(buffer, 0, readBytes);
                         count += readBytes;
                         var percentageComplete = (int) (((double) count / stream.Length) * 100);
-                        //UpdateStatusMessage($"Uploading Sermon ({percentageComplete}% complete)");
+                        UpdateStatusMessage($"Uploading Sermon ({percentageComplete}% complete)");
                     } while (readBytes != 0);
                 }
             }

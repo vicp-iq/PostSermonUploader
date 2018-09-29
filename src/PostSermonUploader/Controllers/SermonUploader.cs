@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Configuration;
+using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
@@ -16,30 +17,32 @@ namespace PostSermonUploader.Controllers
         private string Title { get; set; }
         private Action<string> UpdateStatusMessage { get; set; }
 
+        public static bool IsUploadInProgress { get; set; }
+
+        private readonly IFTPClient _ftpClient;
+
         public SermonUploader(string fileName, string pastor, string title, Action<string> updateStatusMessage)
         {
             FileName = fileName;
             Pastor = pastor;
             Title = title;
             UpdateStatusMessage = updateStatusMessage;
+
+            _ftpClient = new FTPClient(UpdateStatusMessage);
         }
 
         public async void PostAndUpload()
         {
             if (FileNameIsValid())
             {
-                var ftpClient = SermonUploadClient.Client;
-
-                if (ftpClient.IsUploadInProgress)
+                if (IsUploadInProgress)
                 {
                     MessageBox.Show(@"Clicking more won't make it go faster, you know (Proverbs 15:18).");
                     return;
                 }
 
-                ftpClient.UpdateStatusMessage = UpdateStatusMessage;
-
                 SendEmail();
-                await UploadFile();
+                await UploadFiles();
             }
         }
 
@@ -93,10 +96,10 @@ namespace PostSermonUploader.Controllers
         private string MakeBody()
         {
             var result =
-                $@"[audio mp3=""http://proceduraltextures.com/trinity{SermonUploadClient.GetPath(FileName,
-                    SermonUploadClient.Environment.Server)}""][/audio]
-<a href=""http://proceduraltextures.com/trinity/wp-content/uploads/downloadfile.php?file={SermonUploadClient.GetPath(FileName,
-                    SermonUploadClient.Environment.RelativeServer)}"">Download</a>";
+                $@"[audio mp3=""http://proceduraltextures.com/trinity{GetPath(FileName,
+                    Environment.Server)}""][/audio]
+<a href=""http://proceduraltextures.com/trinity/wp-content/uploads/downloadfile.php?file={GetPath(FileName,
+                    Environment.RelativeServer)}"">Download</a>";
             return result;
         }
 
@@ -106,25 +109,63 @@ namespace PostSermonUploader.Controllers
             return result;
         }
 
-        public async Task UploadFile()
+        public async Task UploadFiles()
         {
             if (FileNameIsValid())
             {
                 UpdateStatusMessage("Uploading File");
 
-                var ftpClient = SermonUploadClient.Client;
-
-                if (ftpClient.IsUploadInProgress)
+                if (IsUploadInProgress)
                 {
                     MessageBox.Show(@"Clicking more won't make it go faster, you know (Proverbs 15:18).");
                     return;
                 }
 
-                ftpClient.UpdateStatusMessage = UpdateStatusMessage;
-
-                var client = SermonUploadClient.Client;
-                await client.UploadSermon(FileName);
+                await UploadFilesCore(FileName);
             }
+        }
+
+        private async Task UploadFilesCore(string fileName)
+        {
+            IsUploadInProgress = true;
+            var lTimeStamp = Utilities.ParseFilename(fileName);
+            var lLocalPath = GetPath(lTimeStamp, fileName, Environment.Local);
+            var lServerPath = GetPath(lTimeStamp, fileName, Environment.Server);
+
+            await _ftpClient.UploadFile(lLocalPath, lServerPath);
+
+            IsUploadInProgress = false;
+        }
+
+        private static string GetPath(DateTime aTimeStamp, string aFileName, Environment lEnvironment)
+        {
+            string lReturn;
+
+            var lMonth = MonthMapping.Mappings.Single(x => x.Number == aTimeStamp.Month);
+
+            switch (lEnvironment)
+            {
+                case Environment.Local:
+                    lReturn =
+                        $@"{ConfigurationManager.AppSettings["RecordingLocation"]}/{aTimeStamp.Year}/{lMonth.LocalName}/{aFileName}";
+                    break;
+                case Environment.Server:
+                    lReturn = $@"/wp-content/uploads//{aTimeStamp.Year}/{lMonth.ServerName}/{aFileName}";
+                    break;
+                case Environment.RelativeServer:
+                    lReturn = $@"{aTimeStamp.Year}/{lMonth.ServerName}/{aFileName}";
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+
+            return lReturn;
+        }
+
+        private static string GetPath(string fileName, Environment environment)
+        {
+            var lTimeStamp = Utilities.ParseFilename(fileName);
+            return GetPath(lTimeStamp, fileName, environment);
         }
     }
 }

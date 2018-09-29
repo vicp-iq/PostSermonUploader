@@ -112,6 +112,8 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Clients\IFTPClient.cs" />
+    <Compile Include="Controllers\Environment.cs" />
+    <Compile Include="Controllers\FtpState.cs" />
     <Compile Include="Models\Attachment.cs" />
     <Compile Include="Views\AttachmentSelectorView.xaml.cs">
       <DependentUpon>AttachmentSelectorView.xaml</DependentUpon>
@@ -125,7 +127,6 @@
     <Compile Include="Views\SermonDetailsViewModel.cs" />
     <Compile Include="Controllers\SermonUploader.cs" />
     <Compile Include="Helpers\Utilities.cs" />
-    <Compile Include="Controllers\SermonUploadClient.cs" />
     <Compile Include="Helpers\MonthMapping.cs">
       <SubType>Code</SubType>
     </Compile>
