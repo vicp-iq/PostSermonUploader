@@ -93,10 +93,6 @@ namespace WPFFramework
             }
         }
 
-        private string error;
-        public string Error
-        {
-            get { return error; }
-        }
+        public string Error => string.Empty;
     }
 }

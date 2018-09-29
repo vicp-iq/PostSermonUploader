@@ -11,7 +11,8 @@ namespace PostSermonUploader.UnitTests
     public class SermonUploaderTests
     {
         private IFTPClient _ftpClient;
-        private SermonUploader sut { get; set; }
+        // ReSharper disable once InconsistentNaming
+        private SermonUploader sut;
 
         [SetUp]
         public void SetUp()
