@@ -97,8 +97,8 @@
             </Button.Content>
             <Button.ContextMenu>
                 <ContextMenu >
-                    <MenuItem Header="Reupload file(s)" Command="{Binding Path=UploadFileCommand}"/>
-                    <MenuItem Header="Repost Message" Command="{Binding Path=SendEmailCommand}"/>
+                    <MenuItem Header="(Re)Upload file(s)" Command="{Binding Path=UploadFileCommand}"/>
+                    <MenuItem Header="(Re)Post Message" Command="{Binding Path=SendEmailCommand}"/>
                 </ContextMenu>
             </Button.ContextMenu>
         </Button>

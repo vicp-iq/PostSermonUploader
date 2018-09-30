@@ -50,6 +50,7 @@ namespace PostSermonUploader.Clients
 
         private async Task PerformUpload(string lServerPath, string tempPath)
         {
+            var fileName = Path.GetFileName(lServerPath);
             var state = new FtpState();
             var request = (FtpWebRequest) (WebRequest.Create(FTPServerAddress + lServerPath));
             request.Credentials = new NetworkCredential(Username, Password);
@@ -72,7 +73,7 @@ namespace PostSermonUploader.Clients
                         await requestStream.WriteAsync(buffer, 0, readBytes);
                         count += readBytes;
                         var percentageComplete = (int) (((double) count / stream.Length) * 100);
-                        UpdateStatusMessage($"Uploading Sermon ({percentageComplete}% complete)");
+                        UpdateStatusMessage($"Uploading {fileName}: ({percentageComplete}% complete)");
                     } while (readBytes != 0);
                 }
             }

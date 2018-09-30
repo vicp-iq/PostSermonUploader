@@ -125,6 +125,8 @@ namespace PostSermonUploader.Controllers
             await UploadSermon();
             await UploadAttachments();
 
+            UpdateStatusMessage("Finished Upload");
+
             IsUploadInProgress = false;
         }
 
