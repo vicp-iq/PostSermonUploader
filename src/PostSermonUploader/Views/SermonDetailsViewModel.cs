@@ -115,14 +115,7 @@ namespace PostSermonUploader.Views
         {
             try
             {
-                var sermonUploader = new SermonUploader
-                {
-                    FileName = Filename,
-                    Pastor = Pastor,
-                    UpdateStatusMessage = UpdateStatusMessage,
-                    Title = Title,
-                    Attachments = Attachments.ToArray()
-                };
+                var sermonUploader = CreateSermonUploader();
                 await sermonUploader.SendEmail();
             }
             catch (Exception ex)
@@ -131,18 +124,24 @@ namespace PostSermonUploader.Views
             }
         }
 
+        private SermonUploader CreateSermonUploader()
+        {
+            var sermonUploader = new SermonUploader
+            {
+                FileName = Filename,
+                Pastor = Pastor,
+                UpdateStatusMessage = UpdateStatusMessage,
+                Title = Title,
+                Attachments = Attachments.ToArray()
+            };
+            return sermonUploader;
+        }
+
         private async Task UploadFiles()
         {
             try
             {
-                var sermonUploader = new SermonUploader
-                {
-                    FileName = Filename,
-                    Pastor = Pastor,
-                    UpdateStatusMessage = UpdateStatusMessage,
-                    Title = Title,
-                    Attachments = Attachments.ToArray()
-                };
+                var sermonUploader = CreateSermonUploader();
 
                 await sermonUploader.PerformUpload();
             }
@@ -154,15 +153,8 @@ namespace PostSermonUploader.Views
 
         private async Task PostAndUpload()
         {
-            try
-            {
-                await SendEmail();
-                await UploadFiles();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
+            await SendEmail();
+            await UploadFiles();
         }
 
         private void UpdateStatusMessage(string message)
